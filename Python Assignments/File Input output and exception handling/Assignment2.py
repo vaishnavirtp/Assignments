@@ -1,6 +1,5 @@
 def CreateTextFile():
     
-    
     fileName = "assign.txt"
     with open(fileName,"w") as file:
             name = str(input("Enter name to save in a file: "))    
@@ -16,3 +15,5 @@ def CreateTextFile():
             f.read()
     except FileNotFoundError:
         print("No such file name "+Newfile+ " exists")
+
+CreateTextFile()
