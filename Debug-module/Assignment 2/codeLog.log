@@ -1,8 +1,0 @@
-2023-07-07 10:57:52,668 - INFO - Variable a will be divided by variable b
-2023-07-07 10:57:52,668 - WARNING - Make sure that the denominator is not zero.
-2023-07-07 10:57:52,668 - ERROR - Exception occurred: invalid literal for int() with base 10: 'valueerror'
-Traceback (most recent call last):
-  File "/home/vaishnavi/Desktop/Git Vaishnavi/Assignments/Assignment 2/code.py", line 14, in divide_numbers
-    b=int('valueerror')
-ValueError: invalid literal for int() with base 10: 'valueerror'
-2023-07-07 10:57:52,668 - INFO - Successfully completed the operation
