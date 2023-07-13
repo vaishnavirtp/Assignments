@@ -22,14 +22,14 @@ class Task(BaseModel):
     status: bool = Field(default=False)
 
     @validator("start_date", "end_date", pre=True)
-    def parse_age(cls, value):
+    def validate_date(cls, value):
         if not isinstance(value, date):
             print("error")
             raise ValueError("Invalid Input Data")
         return value
 
     @validator("name", "description", "priority", pre=True)
-    def parse_age(cls, value):
+    def validate_strings(cls, value):
         if not isinstance(value, str):
             raise ValueError("Invalid Input Data")
         return value

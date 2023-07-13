@@ -78,7 +78,7 @@ async def update_task(task_id: int, task: TaskDetails, db: Session = Depends(get
     try:
         task_model = db.query(models.Tasks).filter(models.Tasks.id == task_id).first()
         if task_model is None:
-            raise HTTPException(status_code=404, detail="ID doesn't exist")
+            raise InvalidIDError(task_id, "task")
         task_model.name = task.name
         task_model.description = task.description
         task_model.priority = task.priority
@@ -106,7 +106,7 @@ async def delete_task(task_id: int, db: Session = Depends(get_db)):
     try:
         task_model = db.query(models.Tasks).filter(models.Tasks.id == task_id).first()
         if task_model is None:
-            raise HTTPException(status_code=404, detail="ID doesn't exist")
+            raise InvalidIDError(task_id, "task")
         db.query(models.Tasks).filter(models.Tasks.id == task_id).delete()
         db.commit()
         return JSONResponse(content="Successfully deleted the task")
