@@ -28,11 +28,7 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
         return task
 
     except InvalidIDError as e:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail=str(e.get_message_for_client())
-        )
-    except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=e.status, detail=str(e.get_message()))
 
 
 @router.get("/priority-tasks/{priority}")
@@ -66,11 +62,8 @@ async def create_task(task: Task, db: Session = Depends(get_db)):
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid data"
         )
 
-    except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
 
-
-# ------------------------------ Put Requests------------------------------
+# ------------------------------ Put Request------------------------------
 
 
 @router.put("/{task_id}", status_code=200)
@@ -87,15 +80,11 @@ async def update_task(task_id: int, task: TaskDetails, db: Session = Depends(get
         db.commit()
         return JSONResponse(content="Successfully updated the task")
     except InvalidIDError as e:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail=str(e.get_message_for_client())
-        )
+        raise HTTPException(status_code=e.status, detail=str(e.get_message()))
     except ValueError:
         raise HTTPException(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid data"
         )
-    except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 # ------------------------------ Delete Requests------------------------------
@@ -111,11 +100,7 @@ async def delete_task(task_id: int, db: Session = Depends(get_db)):
         db.commit()
         return JSONResponse(content="Successfully deleted the task")
     except InvalidIDError as e:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail=str(e.get_message_for_client())
-        )
-    except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=e.status, detail=str(e.get_message()))
 
 
 @router.delete("/delete-all/", status_code=200)

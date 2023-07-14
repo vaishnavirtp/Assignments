@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DATE, Boolean
-from app.database.database import Base
+from app.database.database import Base, engine
 
 
 class Tasks(Base):
@@ -12,3 +12,6 @@ class Tasks(Base):
     start_date = Column(DATE)
     end_date = Column(DATE)
     status = Column(Boolean)
+
+
+Base.metadata.create_all(bind=engine)
