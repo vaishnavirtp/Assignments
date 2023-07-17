@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends, APIRouter, Body, status, Request
+from fastapi import HTTPException, Depends, APIRouter, Body, status
 from typing import Annotated
 from app.auth.auth import *
 from fastapi.security import OAuth2PasswordRequestForm
@@ -19,7 +19,8 @@ from http import HTTPStatus
 import bcrypt
 from datetime import timedelta
 from typing import Annotated
-from jose import JWTError, jwt
+from jose import jwt
+from app.utils.notifications import send_email
 
 
 router = APIRouter()
@@ -58,14 +59,24 @@ def create_song(song: SongDetailSchema, db: Session = Depends(get_db)):
     try:
         json_data = jsonable_encoder(song)
         song_model = models.SongDetails(**json_data)
+        user = db.query(models.User).filter(models.User.id == song.artist_id).first()
+        if not user:
+            raise InvalidIDError(song.artist_id, "user")
 
         db.add(song_model)
         db.commit()
+
+        send_email(
+            receiver_email=user.email,
+            email_subject="New Song Created",
+            email_body=f"Hello {user.full_name}. New song with song name {song.title} created.",
+        )
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
             content="Successfully created a song",
         )
-
+    except InvalidIDError as e:
+        raise HTTPException(status_code=e.status, detail=str(e.get_message()))
     except ForbiddenUserError as e:
         raise HTTPException(status_code=e.status, detail=str(e.get_message()))
 
@@ -197,7 +208,8 @@ def user_signup(user: UserInDB = Body(default=None), db: Session = Depends(get_d
 
         if user_db:
             raise HTTPException(
-                status_code=400, detail="User with the email and username "
+                status_code=400,
+                detail="User with that email or username already exists.",
             )
         password_hash = create_hash_password(user.hashed_password)
 

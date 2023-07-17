@@ -15,8 +15,6 @@ import bcrypt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def create_hash_password(password: str):
     password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
