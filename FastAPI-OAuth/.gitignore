@@ -1,0 +1,6 @@
+env
+*.py[cod]
+*.pyc
+__pycache__/
+database.db
+.env
