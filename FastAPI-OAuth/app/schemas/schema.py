@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, SecretStr
 from enum import Enum
 
 
@@ -25,19 +25,15 @@ class SongUpdateSchema(BaseModel):
     genre: str = Field(default=None)
 
 
-class Roles(str, Enum):
-    user = "user"
-    admin = "admin"
-
-
 class User(BaseModel):
     username: str
     email: EmailStr = Field(default=None)
     full_name: str = Field(default=None)
+    role: str
 
 
 class UserInDB(User):
-    hashed_password: str = Field(default=None, min_length=5)
+    password: str = Field(default=None, min_length=5)
 
 
 class Token(BaseModel):
@@ -54,16 +50,3 @@ class UserUpdateSchema(BaseModel):
 
     class Config:
         schema_extra = {"role": "user/admin"}
-
-
-class UserLogin(BaseModel):
-    email: EmailStr = Field(default=None)
-    password: str = Field(default=None)
-
-    class Config:
-        schema_extra = {
-            "user_demo": {
-                "email": "abc.cmail.com",
-                "password": "abc123",
-            }
-        }

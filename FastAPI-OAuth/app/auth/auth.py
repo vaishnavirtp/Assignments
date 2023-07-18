@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 from app.schemas.schema import *
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -53,6 +53,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
     user = db.query(models.User).filter(models.User.username == username).first()
+
     if user is None:
         raise credentials_exception
     return user
@@ -68,6 +69,6 @@ class RoleChecker:
     def __init__(self, allowed_roles: list):
         self.allowed_roles = allowed_roles
 
-    def __call__(self, user: Annotated[User, Depends(get_current_active_user)]):
+    def __call__(self, user: Annotated[Any, Depends(get_current_user)]):
         if user.role not in self.allowed_roles:
-            raise HTTPException(status_code=403, detail="Access denied")
+            raise HTTPException(status_code=403, detail="Access denied.")

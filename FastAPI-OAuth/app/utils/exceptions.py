@@ -1,11 +1,6 @@
 from http import HTTPStatus
 
 
-class RaiseError(Exception):
-    def get_message(self):
-        pass
-
-
 class InvalidIDError(Exception):
     def __init__(self, invalid_id: int, item_type: str):
         self.invalid_id = invalid_id
@@ -13,7 +8,7 @@ class InvalidIDError(Exception):
         self.status = HTTPStatus.BAD_REQUEST
         super().__init__()
 
-    def get_message(self):
+    def __str__(self) -> str:
         return f"No such {self.item_type} with id {self.invalid_id} exists."
 
 
@@ -23,7 +18,7 @@ class InvalidDataError(Exception):
         self.status = HTTPStatus.BAD_REQUEST
         super().__init__()
 
-    def get_message(self):
+    def __str__(self) -> str:
         return (
             f"Invalid data, try again with appropriate format. Format - {self.format}"
         )
@@ -36,7 +31,7 @@ class InvalidCredentailsError(Exception):
         self.status = HTTPStatus.UNAUTHORIZED
         super().__init__()
 
-    def get_message(self):
+    def __str__(self) -> str:
         return f"Invalid login details."
 
 
@@ -47,5 +42,5 @@ class ForbiddenUserError(Exception):
         self.status = HTTPStatus.FORBIDDEN
         super().__init__()
 
-    def get_message(self):
+    def __str__(self) -> str:
         return f"Access Denied, User with id {self.id} can not perform {self.operation} operation."

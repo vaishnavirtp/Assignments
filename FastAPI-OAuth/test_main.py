@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
+from http import HTTPStatus
 from jose import jwt
 from main import app
 from decouple import config
@@ -15,13 +16,10 @@ def test_incorrect_password():
         "username": "string",
         "email": "user@example.com",
         "full_name": "string",
-        "hashed_password": "22",
+        "password": "22",
     }
     response = client.post("/user/signup", json=payload)
-
-    data = response.json()
-    print(data)
-    assert response.status_code == 422
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 def test_for_user_exists():
@@ -29,27 +27,21 @@ def test_for_user_exists():
         "username": "string",
         "email": "user@example.com",
         "full_name": "string",
-        "hashed_password": "string",
+        "password": "string",
     }
     response = client.post("/user/signup", json=payload)
-
-    data = response.json()
-    print(data)
-    assert response.status_code == 400
+    assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-# def test_for_create_user():
-#     payload = {
-#         "username": "abcd",
-#         "email": "abcd@example.com",
-#         "full_name": "string",
-#         "hashed_password": "abcde",
-#     }
-#     response = client.post("/user/signup", json=payload)
-
-#     data = response.json()
-#     print(data)
-#     assert response.status_code == 201
+def test_for_create_user():
+    payload = {
+        "username": "abcde",
+        "email": "abcdef@example.com",
+        "full_name": "string",
+        "password": "abcde",
+    }
+    response = client.post("/user/signup", json=payload)
+    assert response.status_code == HTTPStatus.CREATED
 
 
 # --------------------------------- User Login ---------------------------------
@@ -61,7 +53,7 @@ def test_user_login():
         "password": "string",
     }
     res = client.post("/token", data=login_data)
-    assert res.status_code == 200
+    assert res.status_code == HTTPStatus.OK
     token = res.json().get("access_token")
     creds = jwt.decode(token, config("SECRET_KEY"), algorithms=[config("ALGORITHM")])
     assert creds["sub"] == username
@@ -69,32 +61,11 @@ def test_user_login():
     assert res.json().get("token_type") == "bearer"
 
 
-def test_invalid_id_for_get():
+def test_invalid_id_for_song():
     response = client.get("/songs/1222")
-    assert response.status_code == 404
+    assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_invalid_id_for_get():
+def test_invalid_id_for_user():
     response = client.get("/user/1")
-    assert response.status_code == 200
-
-
-# def test_invalid_text():
-#     response = client.get("/songs/abc")
-#     assert response.status_code == 422
-#     assert response.json()["detail"][0]["msg"] == "value is not a valid integer"
-
-
-# def test_create_song():
-#     response = client.post("/songs/")
-#     assert response.status_code == 403
-
-
-# def test_update_song():
-#     response = client.put("/songs/2")
-#     assert response.status_code == 403
-
-
-# def test_delete_song():
-#     response = client.delete("/1")
-#     assert response.status_code == 403
+    assert response.status_code == HTTPStatus.OK

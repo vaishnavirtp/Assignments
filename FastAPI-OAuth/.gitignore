@@ -3,4 +3,4 @@ env
 *.pyc
 __pycache__/
 database.db
-.env
+.env.test
