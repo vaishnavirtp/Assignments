@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from app.database.database import Base, engine
 from sqlalchemy.orm import relationship
 
@@ -18,6 +18,7 @@ class User(Base):
     full_name = Column(String)
     password = Column(String)
     role = Column(String, default="user")
+    mail = Column(Boolean, default=True)
 
     songs = relationship("SongDetails", back_populates="artist", cascade="all, delete")
 
@@ -36,10 +37,3 @@ class SongDetails(Base):
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
-
-
-# class Album(Base):
-#     __tablename__ = "albums"
-#     id = Column(Integer, primary_key=True, unique=True, index=True)
-#     album_name = Column(String)
-#     songs = relationship("SongDetails", back_populates="artist", cascade="all, delete")

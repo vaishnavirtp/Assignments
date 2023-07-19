@@ -1,4 +1,5 @@
 from fastapi import HTTPException, Depends, APIRouter, Body, status, Form
+from sqlalchemy import exc
 from typing import Annotated
 from app.auth.auth import *
 from fastapi.security import OAuth2PasswordRequestForm
@@ -66,7 +67,7 @@ def create_song(song: SongDetailSchema, db: Session = Depends(get_db)):
         send_email(
             receiver_email=user.email,
             email_subject="New Song Created",
-            email_body=f"Hello {user.full_name}. New song with song name {song.title} created.",
+            email_body=f"Hello {user.full_name}. New song with song name {song.title} created.To unsubscribe click on :\nhttp://127.0.0.1:8000/unsubscribe/{user.email}",
         )
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
@@ -208,10 +209,7 @@ def user_signup(
         )
 
         if user_db:
-            raise HTTPException(
-                status_code=400,
-                detail="User with that email or username already exists.",
-            )
+            raise exc.IntegrityError
         password_hash = create_hash_password((password.get_secret_value()))
 
         user_model = models.User(
@@ -224,6 +222,11 @@ def user_signup(
         db.commit()
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=f"Welcome {email}"
+        )
+    except exc.IntegrityError as e:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="username or email already exists.",
         )
     except ValueError:
         raise HTTPException(
@@ -271,4 +274,21 @@ def delete_all_users(db: Session = Depends(get_db)):
             content="Successfully deleted all the users.",
         )
     except InvalidIDError as e:
+        raise HTTPException(status_code=e.status, detail=str(e))
+
+
+@router.get("/unsubscribe/{user_mail}")
+def unsubscribe_mail(user_mail: str, db: Session = Depends(get_db)):
+    try:
+        user = db.query(models.User).filter(models.User.email == user_mail).first()
+        if user:
+            user.mail = False
+            db.add(user)
+            db.commit()
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content="Unsubscribed Successfully.",
+            )
+        raise InvalidDataError("Invalid email address.")
+    except InvalidDataError as e:
         raise HTTPException(status_code=e.status, detail=str(e))

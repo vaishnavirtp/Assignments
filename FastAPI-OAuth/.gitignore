@@ -3,4 +3,5 @@ env
 *.pyc
 __pycache__/
 database.db
+albumdata.db
 .env.test
