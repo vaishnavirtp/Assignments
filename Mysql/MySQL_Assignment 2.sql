@@ -93,6 +93,32 @@ JOIN employees p ON e.manager_id = p.employee_id;
  GROUP BY e.department_id;
  
  -- 8. Get the count of employees hired year wise
+SELECT YEAR(hire_date) hire_date,COUNT(*) employee_count 
+FROM employees
+GROUP BY YEAR(hire_date);
+
+-- 9. Find the salary range of employees
+SELECT salary
+FROM employees
+WHERE salary = (SELECT MAX(salary) FROM employees) or salary = (SELECT MIN(salary) FROM employees);
+
+
+SELECT MIN(salary) AS min_salary,
+MAX(salary) AS max_salary,
+AVG(salary) AS avg_salary
+FROM employees;
+
+-- 10. Write a query to divide people into three groups based on their salaries.
+
+SELECT CONCAT(first_name, ' ', last_name) employee,
+salary,
+CASE
+WHEN salary BETWEEN 2000 AND 10000 THEN "low"
+WHEN salary BETWEEN 10000 AND 18000 THEN "mid"
+ELSE "high"
+END AS salary_group
+FROM employees
+ORDER BY 2 DESC;
 
 
 -- 11. Select the employees whose first_name contains “an”
@@ -100,3 +126,79 @@ JOIN employees p ON e.manager_id = p.employee_id;
 SELECT *
 FROM employees
 WHERE first_name LIKE "%an%";
+
+
+-- 12. Select employee first name and the corresponding phone number in the format (_ _ _)-(_ _ _)-(_ _ _ _
+SELECT first_name AS name,REPLACE(phone_number,'.','-') phone_number
+FROM employees;
+
+-- 13. Find the employees who joined in August, 1994.
+
+SELECT first_name, hire_date
+FROM employees
+WHERE hire_date >= "1994-08-01" AND hire_date <= "1994-08-31";
+
+
+SELECT first_name, hire_date
+FROM employees
+WHERE YEAR(hire_date) = "1994" AND MONTH(hire_date) = "08";
+
+
+-- 14. Write an SQL query to display employees who earn more than the average salary in that company
+
+SELECT * 
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees);
+
+-- 15. Find the maximum salary from each department.
+
+SELECT d.department_name, d.department_id, MAX(salary) AS max_salary
+FROM departments d
+JOIN employees e USING(department_id)
+GROUP BY e.department_id
+ORDER BY 2;
+
+
+-- 16. Write a SQL query to display the 5 least earning employees
+
+SELECT *
+FROM employees
+ORDER BY salary
+LIMIT 5;
+
+-- 
+
+-- 17. Find the employees hired in the 80s
+
+SELECT first_name,YEAR(hire_date) AS hire_date
+FROM employees 
+WHERE YEAR(hire_date) < "1990" AND YEAR(hire_date) > "1980";
+
+-- 18. Display the employees first name and the name in reverse order
+SELECT first_name, REVERSE(first_name) AS reverse_first_name ,last_name ,REVERSE(last_name) AS reverse_last_name
+FROM employees;
+
+-- 19. Find the employees who joined the company after 15th of the month
+
+SELECT first_name,hire_date 
+FROM employees 
+WHERE DAY(hire_date) > "15";
+
+-- 20. Display the managers and the reporting employees who work in different departments
+
+SELECT 
+CONCAT(m.first_name, ' ', m.last_name) manager, 
+CONCAT(e.first_name,' ',e.last_name) employee, 
+m.department_id AS manager_dep,
+e.department_id AS emp_dep
+FROM employees e
+JOIN employees m ON e.manager_id = m.employee_id
+WHERE e.department_id != m.department_id;
+
+
+SELECT 
+CONCAT(m.first_name, ' ', m.last_name) manager, 
+COUNT(e.employee_id) employee_count
+FROM employees e
+JOIN employees m ON e.manager_id = m.employee_id
+GROUP BY e.manager_id;
