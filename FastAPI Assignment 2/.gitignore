@@ -1,0 +1,5 @@
+*.py[cod]
+*.pyc
+__pycache__/
+env
+*Db.*
