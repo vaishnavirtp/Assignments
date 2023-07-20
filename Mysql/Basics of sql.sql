@@ -169,10 +169,93 @@ USING (order_id,product_id);
 SELECT p.date, c.name AS client, p.amount, pm.name
 FROM payments p
 JOIN payment_methods pm ON pm.payment_method_id = p.payment_method
-JOIN clients c USING (client_id)
+JOIN clients c USING (client_id);
+
+
+-- UNION OF QUERIES
+
+SELECT order_id,order_date, "Active" AS status
+FROM orders
+WHERE order_date >= '2019-01-01'
+UNION
+SELECT order_id,order_date, "Archived" AS status
+FROM orders
+WHERE order_date < '2019-01-01';
+
+SELECT first_name
+FROM customers
+UNION 
+SELECT name
+FROM shippers;
 
 
 
+SELECT customer_id, first_name, points, "Bronze" as type
+FROM customers
+WHERE points <= 2000
+UNION
+SELECT customer_id, first_name, points, "Silver" as type
+FROM customers
+WHERE points BETWEEN 2001 AND 3000
+UNION
+SELECT customer_id, first_name, points, "Gold" as type
+FROM customers
+WHERE points >= 3000;
 
+-- INSERT ROW
+
+INSERT INTO customers(first_name,last_name,birth_date,address,city,state)
+VALUES("Vaishnavi","Ranbhare","2002-01-23","Meghdoot","Pune","MH");
+
+-- INSERTING MULTIPLE ROWS
+
+INSERT INTO shippers(name)
+VALUES("Mary"),
+("Bell"),
+("Jenny");
+
+INSERT INTO orders(customer_id,order_date,status)
+VALUES (2,"2022-03-23",1);
+
+
+INSERT INTO order_items
+VALUES(LAST_INSERT_ID(),1,2,8.2),
+(LAST_INSERT_ID(),2,3,6.2);
+
+
+CREATE TABLE orders_archive AS
+SELECT *
+FROM orders;
+
+INSERT INTO orders_archive
+SELECT *
+FROM orders
+WHERE order_date < "2019-01-01";
+
+-- CREATE NEW TABLE FROM PREVIOUS TABLE
+CREATE TABLE invoice_archived AS
+SELECT i.invoice_id,i.number, c.name AS client,i.invoice_total,i.payment_total,invoice_date,payment_date,due_date
+FROM invoices i
+JOIN clients c USING(client_id)
+WHERE i.payment_date IS NOT NULL;
+
+-- UPDATE THE TABLE VALUES
+UPDATE invoices
+SET payment_total = invoice_total * 0.5,payment_date = due_date
+WHERE client_id = 3;
+
+
+UPDATE customers
+SET points = points + 50
+WHERE birth_date <= "1990-01-01";
+
+
+UPDATE invoices
+SET payment_total = invoice_total * 0.5,payment_date = due_date
+WHERE client_id IN (SELECT client_id FROM clients WHERE state IN ('CA','NY'));
+
+UPDATE orders
+SET comments = "Gold Customer"
+WHERE customer_id IN (SELECT customer_id FROM customers WHERE points > 3000);
 
 
